@@ -1,0 +1,41 @@
+= aerospace-swap-local-workspaces(1)
+include::util/man-attributes.adoc[]
+:manname: aerospace-swap-local-workspaces
+// tag::purpose[]
+:manpurpose: Swap the active workspaces between two monitors
+// end::purpose[]
+
+// =========================================================== Synopsis
+== Synopsis
+[verse]
+// tag::synopsis[]
+aerospace swap-local-workspaces [-h|--help]
+                                [--wrap-around]
+                                (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+                                (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+
+// end::synopsis[]
+
+// =========================================================== Description
+== Description
+
+// tag::body[]
+Swaps the currently visible workspaces between two monitors. The monitors can be
+specified explicitly (using the IDs from `list-monitors`) or relatively (`focused`,
+`mouse`, `next`, `prev`, `left`, `right`, `up`, `down`). Slot assignments inside
+`WorkspaceLocalIndexing` are updated so the swap persists.
+
+When `[general] workspace_mode = "per-monitor"`, the swap keeps each monitor’s local
+slots intact; in global mode it behaves like a convenience wrapper around
+`move-workspace-to-monitor`.
+
+// =========================================================== Options
+include::util/conditional-options-header.adoc[]
+
+-h, --help:: Print help
+--wrap-around:: Allow `next`/`prev` style monitor selections to wrap when cycling
+
+// end::body[]
+
+// =========================================================== Footer
+include::util/man-footer.adoc[]

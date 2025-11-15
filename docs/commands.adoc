@@ -133,12 +133,26 @@ include::aerospace-move-node-to-monitor.adoc[tags=synopsis]
 include::aerospace-move-node-to-monitor.adoc[tags=purpose]
 include::aerospace-move-node-to-monitor.adoc[tags=body]
 
+== move-node-to-monitor-local-workspace
+----
+include::aerospace-move-node-to-monitor-local-workspace.adoc[tags=synopsis]
+----
+include::aerospace-move-node-to-monitor-local-workspace.adoc[tags=purpose]
+include::aerospace-move-node-to-monitor-local-workspace.adoc[tags=body]
+
 == move-node-to-workspace
 ----
 include::aerospace-move-node-to-workspace.adoc[tags=synopsis]
 ----
 include::aerospace-move-node-to-workspace.adoc[tags=purpose]
 include::aerospace-move-node-to-workspace.adoc[tags=body]
+
+== move-node-to-local-workspace
+----
+include::aerospace-move-node-to-local-workspace.adoc[tags=synopsis]
+----
+include::aerospace-move-node-to-local-workspace.adoc[tags=purpose]
+include::aerospace-move-node-to-local-workspace.adoc[tags=body]
 
 == move-workspace-to-monitor
 ----
@@ -175,6 +189,13 @@ include::aerospace-swap.adoc[tags=synopsis]
 include::aerospace-swap.adoc[tags=purpose]
 include::aerospace-swap.adoc[tags=body]
 
+== swap-local-workspaces
+----
+include::aerospace-swap-local-workspaces.adoc[tags=synopsis]
+----
+include::aerospace-swap-local-workspaces.adoc[tags=purpose]
+include::aerospace-swap-local-workspaces.adoc[tags=body]
+
 == summon-workspace
 ----
 include::./aerospace-summon-workspace.adoc[tags=synopsis]
@@ -202,6 +223,13 @@ include::aerospace-workspace.adoc[tags=synopsis]
 ----
 include::aerospace-workspace.adoc[tags=purpose]
 include::aerospace-workspace.adoc[tags=body]
+
+== workspace-local
+----
+include::aerospace-workspace-local.adoc[tags=synopsis]
+----
+include::aerospace-workspace-local.adoc[tags=purpose]
+include::aerospace-workspace-local.adoc[tags=body]
 
 == workspace-back-and-forth
 ----

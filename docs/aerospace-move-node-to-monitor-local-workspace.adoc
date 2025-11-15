@@ -1,0 +1,55 @@
+= aerospace-move-node-to-monitor-local-workspace(1)
+include::util/man-attributes.adoc[]
+:manname: aerospace-move-node-to-monitor-local-workspace
+// tag::purpose[]
+:manpurpose: Move the focused window to a slot on another monitor
+// end::purpose[]
+
+// =========================================================== Synopsis
+== Synopsis
+[verse]
+// tag::synopsis[]
+aerospace move-node-to-monitor-local-workspace [-h|--help]
+                                               [--window-id <window-id>]
+                                               [--focus-follows-window]
+                                               [--fail-if-noop]
+                                               [--wrap-around]
+                                               (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+                                               <slot-index>
+
+// end::synopsis[]
+
+// =========================================================== Description
+== Description
+
+// tag::body[]
+Moves the selected window to the workspace occupying the given slot on the target
+monitor. Slot indexes are 1-based and local to each monitor. When the slot is empty,
+the monitor gets a stub workspace so the move succeeds.
+
+The monitor argument accepts explicit IDs (as printed by `list-monitors`) or
+directional tokens such as `next`, `prev`, `left`, `right`, `up`, or `down`. The
+`--wrap-around` flag makes directional navigation wrap between the first and last
+monitor in that direction.
+
+This command is only available when `[general] workspace_mode = "per-monitor"`.
+
+// =========================================================== Options
+include::util/conditional-options-header.adoc[]
+
+-h, --help:: Print help
+--window-id::<window-id> to move instead of the currently focused window
+--focus-follows-window:: Focus the destination workspace after the move
+--fail-if-noop:: Exit with non-zero status if the window is already on that monitor slot
+--wrap-around:: Wrap when resolving `next`/`prev` or directional monitor arguments
+
+// =========================================================== Examples
+include::util/conditional-examples-header.adoc[]
+
+* Move the focused window to slot 1 of the next monitor and keep focus on it: +
+`aerospace move-node-to-monitor-local-workspace --focus-follows-window --wrap-around next 1`
+
+// end::body[]
+
+// =========================================================== Footer
+include::util/man-footer.adoc[]

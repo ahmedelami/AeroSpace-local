@@ -99,14 +99,27 @@ let mode_help_generated = """
 let move_mouse_help_generated = """
     USAGE: move-mouse [-h|--help] [--fail-if-noop] <mouse-position>
     """
+let move_node_to_local_workspace_help_generated = """
+    USAGE: move-node-to-local-workspace [-h|--help]
+                                        [--window-id <window-id>]
+                                        [--focus-follows-window]
+                                        [--fail-if-noop]
+                                        <slot-index>
+    """
+let move_node_to_monitor_local_workspace_help_generated = """
+    USAGE: move-node-to-monitor-local-workspace [-h|--help]
+                                                [--window-id <window-id>]
+                                                [--focus-follows-window]
+                                                [--fail-if-noop]
+                                                [--wrap-around]
+                                                (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+                                                <slot-index>
+    """
 let move_node_to_monitor_help_generated = """
     USAGE: move-node-to-monitor [-h|--help] [--window-id <window-id>] [--focus-follows-window]
                                 [--wrap-around] (left|down|up|right|next|prev)
        OR: move-node-to-monitor [-h|--help] [--window-id <window-id>] [--focus-follows-window]
                                 [--fail-if-noop] <monitor-pattern>...
-    """
-let move_node_to_monitor_local_workspace_help_generated = """
-    USAGE: move-node-to-monitor-local-workspace [-h|--help] [--window-id <window-id>] [--focus-follows-window] [--fail-if-noop] (<monitor-id>|focused|mouse|next|prev|left|right|up|down) <slot-index>
     """
 let move_node_to_workspace_help_generated = """
     USAGE: move-node-to-workspace [-h|--help] [--focus-follows-window] [--wrap-around]
@@ -114,9 +127,6 @@ let move_node_to_workspace_help_generated = """
                                   (next|prev)
        OR: move-node-to-workspace [-h|--help] [--focus-follows-window] [--fail-if-noop]
                                   [--window-id <window-id>] <workspace-name>
-    """
-let move_node_to_local_workspace_help_generated = """
-    USAGE: move-node-to-local-workspace [-h|--help] [--window-id <window-id>] [--focus-follows-window] [--fail-if-noop] <slot-index>
     """
 let move_workspace_to_monitor_help_generated = """
     USAGE: move-workspace-to-monitor [-h|--help] [--workspace <workspace>] [--wrap-around] (left|down|up|right)
@@ -138,13 +148,16 @@ let split_help_generated = """
 let summon_workspace_help_generated = """
     USAGE: summon-workspace [-h|--help] [--fail-if-noop] <workspace>
     """
+let swap_local_workspaces_help_generated = """
+    USAGE: swap-local-workspaces [-h|--help]
+                                 [--wrap-around]
+                                 (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+                                 (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
+    """
 let swap_help_generated = """
     USAGE: swap [-h|--help] [--window-id <window-id>] [--swap-focus]
                 [--wrap-around]
                 (left|down|up|right|dfs-next|dfs-prev)
-    """
-let swap_local_workspaces_help_generated = """
-    USAGE: swap-local-workspaces [-h|--help] (<monitor-id>|focused|mouse|next|prev|left|right|up|down) (<monitor-id>|focused|mouse|next|prev|left|right|up|down)
     """
 let trigger_binding_help_generated = """
     USAGE: trigger-binding [-h|--help] <binding> --mode <mode-id>
@@ -157,10 +170,10 @@ let volume_help_generated = """
 let workspace_back_and_forth_help_generated = """
     USAGE: workspace-back-and-forth [-h|--help]
     """
+let workspace_local_help_generated = """
+    USAGE: workspace-local [-h|--help] <slot-index>
+    """
 let workspace_help_generated = """
     USAGE: workspace [-h|--help] [--auto-back-and-forth] [--fail-if-noop] <workspace-name>
        OR: workspace [-h|--help] [--wrap-around] [--stdin|--no-stdin] (next|prev)
-    """
-let workspace_local_help_generated = """
-    USAGE: workspace-local [-h|--help] <slot-index>
     """

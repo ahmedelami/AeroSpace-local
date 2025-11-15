@@ -1,0 +1,48 @@
+= aerospace-move-node-to-local-workspace(1)
+include::util/man-attributes.adoc[]
+:manname: aerospace-move-node-to-local-workspace
+// tag::purpose[]
+:manpurpose: Move the focused window to a monitor-local workspace slot
+// end::purpose[]
+
+// =========================================================== Synopsis
+== Synopsis
+[verse]
+// tag::synopsis[]
+aerospace move-node-to-local-workspace [-h|--help]
+                                       [--window-id <window-id>]
+                                       [--focus-follows-window]
+                                       [--fail-if-noop]
+                                       <slot-index>
+
+// end::synopsis[]
+
+// =========================================================== Description
+== Description
+
+// tag::body[]
+Moves the selected window to the workspace occupying the given slot on the monitor
+that currently owns that window. Slot indexes are 1-based and scoped to each monitor.
+
+If the slot is empty, a stub workspace is created on that monitor and the window is
+sent there. This command requires `[general] workspace_mode = "per-monitor"`;
+otherwise it fails with an error to avoid ambiguity with the global workspace list.
+
+// =========================================================== Options
+include::util/conditional-options-header.adoc[]
+
+-h, --help:: Print help
+--window-id::<window-id> to move instead of the currently focused window
+--focus-follows-window:: Focus the destination workspace after the window is moved
+--fail-if-noop:: Exit with non-zero status when the window is already on that slot
+
+// =========================================================== Examples
+include::util/conditional-examples-header.adoc[]
+
+* Send the focused window to slot 5 of its current monitor (and follow it): +
+`aerospace move-node-to-local-workspace --focus-follows-window 5`
+
+// end::body[]
+
+// =========================================================== Footer
+include::util/man-footer.adoc[]
