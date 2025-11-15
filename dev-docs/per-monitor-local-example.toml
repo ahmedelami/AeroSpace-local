@@ -93,7 +93,7 @@
     alt-shift-tab = 'swap-local-workspaces focused next --wrap-around'
 
     # Switch focused monitor
-    alt-backtick = 'focus-monitor --wrap-around next'
+    alt-esc = 'focus-monitor --wrap-around next'
 
     # Move focused window to slot 1 on the next monitor (wraps) and focus it there
     alt-ctrl-enter = 'move-node-to-monitor-local-workspace next 1 --wrap-around --focus-follows-window'
