@@ -13,6 +13,9 @@ struct SummonWorkspaceCommand: Command {
             return !args.failIfNoop
         }
         if monitor.setActiveWorkspace(workspace) {
+            if config.workspaceIndexingMode == .perMonitor {
+                WorkspaceLocalIndexing.shared.move(workspace, to: monitor.rect.topLeftCorner, at: nil)
+            }
             return workspace.focusWorkspace()
         } else {
             return io.err("Can't move workspace '\(workspace.name)' to monitor '\(monitor.name)'. workspace-to-monitor-force-assignment doesn't allow it")

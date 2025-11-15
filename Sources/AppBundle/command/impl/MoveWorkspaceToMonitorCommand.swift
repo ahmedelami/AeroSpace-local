@@ -9,16 +9,17 @@ struct MoveWorkspaceToMonitorCommand: Command {
         guard let target = args.resolveTargetOrReportError(env, io) else { return false }
         let focusedWorkspace = target.workspace
         let prevMonitor = focusedWorkspace.workspaceMonitor
+        let prevSlot = WorkspaceLocalIndexing.shared.index(of: focusedWorkspace, on: prevMonitor.rect.topLeftCorner).map { $0 + 1 }
 
         switch args.target.val.resolve(target.workspace.workspaceMonitor, wrapAround: args.wrapAround) {
             case .success(let targetMonitor):
                 if targetMonitor.monitorId == prevMonitor.monitorId {
                     return true
                 }
-                if targetMonitor.setActiveWorkspace(focusedWorkspace) {
-                    let stubWorkspace = getStubWorkspace(for: prevMonitor)
+                if targetMonitor.setActiveWorkspace(focusedWorkspace, slot: prevSlot) {
+                    let stubWorkspace = getStubWorkspace(for: prevMonitor, preferredSlot: prevSlot)
                     check(
-                        prevMonitor.setActiveWorkspace(stubWorkspace),
+                        prevMonitor.setActiveWorkspace(stubWorkspace, slot: prevSlot),
                         "getStubWorkspace generated incompatible stub workspace (\(stubWorkspace)) for the monitor (\(prevMonitor)",
                     )
                     return true

@@ -54,8 +54,12 @@ extension CmdArgs {
                 command = MoveCommand(args: self as! MoveCmdArgs)
             case .moveMouse:
                 command = MoveMouseCommand(args: self as! MoveMouseCmdArgs)
+            case .moveNodeToLocalWorkspace:
+                command = MoveNodeToLocalWorkspaceCommand(args: self as! MoveNodeToLocalWorkspaceCmdArgs)
             case .moveNodeToMonitor:
                 command = MoveNodeToMonitorCommand(args: self as! MoveNodeToMonitorCmdArgs)
+            case .moveNodeToMonitorLocalWorkspace:
+                command = MoveNodeToMonitorLocalWorkspaceCommand(args: self as! MoveNodeToMonitorLocalWorkspaceCmdArgs)
             case .moveNodeToWorkspace:
                 command = MoveNodeToWorkspaceCommand(args: self as! MoveNodeToWorkspaceCmdArgs)
             case .moveWorkspaceToMonitor:
@@ -70,10 +74,14 @@ extension CmdArgs {
                 command = SummonWorkspaceCommand(args: self as! SummonWorkspaceCmdArgs)
             case .swap:
                 command = SwapCommand(args: self as! SwapCmdArgs)
+            case .swapLocalWorkspaces:
+                command = SwapLocalWorkspacesCommand(args: self as! SwapLocalWorkspacesCmdArgs)
             case .triggerBinding:
                 command = TriggerBindingCommand(args: self as! TriggerBindingCmdArgs)
             case .volume:
                 command = VolumeCommand(args: self as! VolumeCmdArgs)
+            case .workspaceLocal:
+                command = WorkspaceLocalCommand(args: self as! WorkspaceLocalCmdArgs)
             case .workspace:
                 command = WorkspaceCommand(args: self as! WorkspaceCmdArgs)
             case .workspaceBackAndForth:

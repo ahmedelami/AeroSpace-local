@@ -83,6 +83,7 @@ struct Parser<S: ConvenienceCopyable, T>: ParserProtocol {
 
 private let keyMappingConfigRootKey = "key-mapping"
 private let modeConfigRootKey = "mode"
+private let generalConfigRootKey = "general"
 
 // For every new config option you add, think:
 // 1. Does it make sense to have different value
@@ -114,9 +115,19 @@ private let configParser: [String: any ParserProtocol<Config>] = [
     "workspace-to-monitor-force-assignment": Parser(\.workspaceToMonitorForceAssignment, parseWorkspaceToMonitorAssignment),
     "on-window-detected": Parser(\.onWindowDetected, parseOnWindowDetectedArray),
 
+    generalConfigRootKey: Parser(\.workspaceIndexingMode, skipParsing(Config().workspaceIndexingMode)), // Parsed separately below
+
     // Deprecated
     "non-empty-workspaces-root-containers-layout-on-startup": Parser(\._nonEmptyWorkspacesRootContainersLayoutOnStartup, parseStartupRootContainerLayout),
     "indent-for-nested-containers-with-the-same-orientation": Parser(\._indentForNestedContainersWithTheSameOrientation, parseIndentForNestedContainersWithTheSameOrientation),
+]
+
+private struct GeneralConfig: ConvenienceCopyable {
+    var workspaceIndexingMode: WorkspaceIndexingMode = .global
+}
+
+private let generalConfigParser: [String: any ParserProtocol<GeneralConfig>] = [
+    "workspace_mode": Parser(\.workspaceIndexingMode, parseWorkspaceIndexingMode),
 ]
 
 extension ParsedCmd where T == any Command {
@@ -182,6 +193,11 @@ func parseCommandOrCommands(_ raw: TOMLValueConvertible) -> Parsed<[any Command]
 
     if let modes = rawTable[modeConfigRootKey].flatMap({ parseModes($0, .rootKey(modeConfigRootKey), &errors, config.keyMapping.resolve()) }) {
         config.modes = modes
+    }
+
+    if let general = rawTable[generalConfigRootKey] {
+        let parsedGeneral = parseTable(general, GeneralConfig(), generalConfigParser, .rootKey(generalConfigRootKey), &errors)
+        config.workspaceIndexingMode = parsedGeneral.workspaceIndexingMode
     }
 
     config.preservedWorkspaceNames = config.modes.values.lazy
@@ -299,6 +315,22 @@ private func parseDefaultContainerOrientation(_ raw: TOMLValueConvertible, _ bac
     parseString(raw, backtrace).flatMap {
         DefaultContainerOrientation(rawValue: $0)
             .orFailure(.semantic(backtrace, "Can't parse default container orientation '\($0)'"))
+    }
+}
+
+private func parseWorkspaceIndexingMode(_ raw: TOMLValueConvertible, _ backtrace: TomlBacktrace) -> ParsedToml<WorkspaceIndexingMode> {
+    parseString(raw, backtrace).map { value in
+        switch value {
+            case WorkspaceIndexingMode.global.rawValue:
+                return WorkspaceIndexingMode.global
+            case WorkspaceIndexingMode.perMonitor.rawValue:
+                return WorkspaceIndexingMode.perMonitor
+            default:
+                let scope = backtrace.description
+                let location = scope.isEmpty ? "" : " at \(scope)"
+                print("Unknown workspace_mode '\(value)'\(location). Defaulting to '\(WorkspaceIndexingMode.global.rawValue)'")
+                return WorkspaceIndexingMode.global
+        }
     }
 }
 

@@ -26,7 +26,9 @@ public enum CmdKind: String, CaseIterable, Equatable, Sendable {
     case mode
     case move = "move"
     case moveMouse = "move-mouse"
+    case moveNodeToLocalWorkspace = "move-node-to-local-workspace"
     case moveNodeToMonitor = "move-node-to-monitor"
+    case moveNodeToMonitorLocalWorkspace = "move-node-to-monitor-local-workspace"
     case moveNodeToWorkspace = "move-node-to-workspace"
     case moveWorkspaceToMonitor = "move-workspace-to-monitor"
     case reloadConfig = "reload-config"
@@ -34,9 +36,11 @@ public enum CmdKind: String, CaseIterable, Equatable, Sendable {
     case split
     case summonWorkspace = "summon-workspace"
     case swap
+    case swapLocalWorkspaces = "swap-local-workspaces"
     case triggerBinding = "trigger-binding"
     case volume
     case workspace
+    case workspaceLocal = "workspace-local"
     case workspaceBackAndForth = "workspace-back-and-forth"
 }
 
@@ -96,8 +100,12 @@ func initSubcommands() -> [String: any SubCommandParserProtocol] {
                 result["move-through"] = SubCommandParser(parseMoveCmdArgs)
             case .moveMouse:
                 result[kind.rawValue] = SubCommandParser(parseMoveMouseCmdArgs)
+            case .moveNodeToLocalWorkspace:
+                result[kind.rawValue] = SubCommandParser(MoveNodeToLocalWorkspaceCmdArgs.init)
             case .moveNodeToMonitor:
                 result[kind.rawValue] = SubCommandParser(parseMoveNodeToMonitorCmdArgs)
+            case .moveNodeToMonitorLocalWorkspace:
+                result[kind.rawValue] = SubCommandParser(MoveNodeToMonitorLocalWorkspaceCmdArgs.init)
             case .moveNodeToWorkspace:
                 result[kind.rawValue] = SubCommandParser(parseMoveNodeToWorkspaceCmdArgs)
             case .moveWorkspaceToMonitor:
@@ -114,10 +122,14 @@ func initSubcommands() -> [String: any SubCommandParserProtocol] {
                 result[kind.rawValue] = SubCommandParser(SummonWorkspaceCmdArgs.init)
             case .swap:
                 result[kind.rawValue] = SubCommandParser(parseSwapCmdArgs)
+            case .swapLocalWorkspaces:
+                result[kind.rawValue] = SubCommandParser(SwapLocalWorkspacesCmdArgs.init)
             case .triggerBinding:
                 result[kind.rawValue] = SubCommandParser(parseTriggerBindingCmdArgs)
             case .volume:
                 result[kind.rawValue] = SubCommandParser(VolumeCmdArgs.init)
+            case .workspaceLocal:
+                result[kind.rawValue] = SubCommandParser(WorkspaceLocalCmdArgs.init)
             case .workspace:
                 result[kind.rawValue] = SubCommandParser(parseWorkspaceCmdArgs)
             case .workspaceBackAndForth:

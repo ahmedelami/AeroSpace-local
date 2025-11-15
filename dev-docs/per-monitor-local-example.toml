@@ -1,0 +1,105 @@
+# 'main' binding mode declaration
+[mode.main.binding]
+    # Layout
+    alt-slash = 'layout tiles horizontal vertical'
+    alt-comma = 'layout accordion horizontal vertical'
+
+    # Focus between tiles
+    alt-h = 'focus left'
+    alt-j = 'focus down'
+    alt-k = 'focus up'
+    alt-l = 'focus right'
+
+    # Move tiles
+    alt-shift-h = 'move left'
+    alt-shift-j = 'move down'
+    alt-shift-k = 'move up'
+    alt-shift-l = 'move right'
+
+    # Resize
+    alt-minus = 'resize smart -50'
+    alt-equal = 'resize smart +50'
+
+    # Workspaces – focus (per-monitor slots)
+    # Leave alt-h/j/k/l available for the directional focus bindings.
+    alt-1 = 'workspace-local 1'
+    alt-2 = 'workspace-local 2'
+    alt-3 = 'workspace-local 3'
+    alt-4 = 'workspace-local 4'
+    alt-5 = 'workspace-local 5'
+    alt-6 = 'workspace-local 6'
+    alt-7 = 'workspace-local 7'
+    alt-8 = 'workspace-local 8'
+    alt-9 = 'workspace-local 9'
+    alt-a = 'workspace-local 10'
+    alt-b = 'workspace-local 11'
+    alt-c = 'workspace-local 12'
+    alt-d = 'workspace-local 13'
+    alt-e = 'workspace-local 14'
+    alt-f = 'workspace-local 15'
+    alt-g = 'workspace-local 16'
+    alt-i = 'workspace-local 17'
+    alt-m = 'workspace-local 18'
+    alt-n = 'workspace-local 19'
+    alt-o = 'workspace-local 20'
+    alt-p = 'workspace-local 21'
+    alt-q = 'workspace-local 22'
+    alt-r = 'workspace-local 23'
+    alt-s = 'workspace-local 24'
+    alt-t = 'workspace-local 25'
+    alt-u = 'workspace-local 26'
+    alt-v = 'workspace-local 27'
+    alt-w = 'workspace-local 28'
+    alt-x = 'workspace-local 29'
+    alt-y = 'workspace-local 30'
+    alt-z = 'workspace-local 31'
+
+    # Move node to workspace (per-monitor slots)
+    alt-shift-1 = 'move-node-to-local-workspace 1'
+    alt-shift-2 = 'move-node-to-local-workspace 2'
+    alt-shift-3 = 'move-node-to-local-workspace 3'
+    alt-shift-4 = 'move-node-to-local-workspace 4'
+    alt-shift-5 = 'move-node-to-local-workspace 5'
+    alt-shift-6 = 'move-node-to-local-workspace 6'
+    alt-shift-7 = 'move-node-to-local-workspace 7'
+    alt-shift-8 = 'move-node-to-local-workspace 8'
+    alt-shift-9 = 'move-node-to-local-workspace 9'
+    alt-shift-a = 'move-node-to-local-workspace 10'
+    alt-shift-b = 'move-node-to-local-workspace 11'
+    alt-shift-c = 'move-node-to-local-workspace 12'
+    alt-shift-d = 'move-node-to-local-workspace 13'
+    alt-shift-e = 'move-node-to-local-workspace 14'
+    alt-shift-f = 'move-node-to-local-workspace 15'
+    alt-shift-g = 'move-node-to-local-workspace 16'
+    alt-shift-i = 'move-node-to-local-workspace 17'
+    alt-shift-m = 'move-node-to-local-workspace 18'
+    alt-shift-n = 'move-node-to-local-workspace 19'
+    alt-shift-o = 'move-node-to-local-workspace 20'
+    alt-shift-p = 'move-node-to-local-workspace 21'
+    alt-shift-q = 'move-node-to-local-workspace 22'
+    alt-shift-r = 'move-node-to-local-workspace 23'
+    alt-shift-s = 'move-node-to-local-workspace 24'
+    alt-shift-t = 'move-node-to-local-workspace 25'
+    alt-shift-u = 'move-node-to-local-workspace 26'
+    alt-shift-v = 'move-node-to-local-workspace 27'
+    alt-shift-w = 'move-node-to-local-workspace 28'
+    alt-shift-x = 'move-node-to-local-workspace 29'
+    alt-shift-y = 'move-node-to-local-workspace 30'
+    alt-shift-z = 'move-node-to-local-workspace 31'
+
+    # Workspace back-and-forth
+    alt-tab = 'workspace-back-and-forth'
+    # Swap the focused monitor with the next one (wraps)
+    alt-shift-tab = 'swap-local-workspaces focused next --wrap-around'
+
+    # Switch focused monitor
+    alt-backtick = 'focus-monitor --wrap-around next'
+
+    # Move focused window to slot 1 on the next monitor (wraps) and focus it there
+    alt-ctrl-enter = 'move-node-to-monitor-local-workspace next 1 --wrap-around --focus-follows-window'
+
+    # Mode switch
+    alt-shift-semicolon = 'mode service'
+
+[general]
+workspace_mode = "per-monitor"

@@ -57,8 +57,14 @@ struct Config: ConvenienceCopyable {
     var onWindowDetected: [WindowDetectedCallback] = []
 
     var preservedWorkspaceNames: [String] = []
+    var workspaceIndexingMode: WorkspaceIndexingMode = .global
 }
 
 enum DefaultContainerOrientation: String {
     case horizontal, vertical, auto
+}
+
+enum WorkspaceIndexingMode: String {
+    case global = "global"
+    case perMonitor = "per-monitor"
 }

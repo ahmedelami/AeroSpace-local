@@ -39,12 +39,37 @@ struct WorkspaceCommand: Command {
 @MainActor func getNextPrevWorkspace(current: Workspace, isNext: Bool, wrapAround: Bool, stdin: String?, target: LiveFocus) -> Workspace? {
     let stdinWorkspaces: [String] = stdin?.split(separator: "\n").map { String($0).trim() }.filter { !$0.isEmpty } ?? []
     let currentMonitor = current.workspaceMonitor
-    let workspaces: [Workspace] = stdin != nil
-        ? stdinWorkspaces.map { Workspace.get(byName: $0) }
-        : Workspace.all.filter { $0.workspaceMonitor.rect.topLeftCorner == currentMonitor.rect.topLeftCorner }
-            .toSet()
-            .union([current])
-            .sorted()
+    let workspaces: [Workspace]
+    if stdin != nil {
+        workspaces = stdinWorkspaces.map { Workspace.get(byName: $0) }
+    } else {
+        let monitorPoint = currentMonitor.rect.topLeftCorner
+        if config.workspaceIndexingMode == .perMonitor,
+           let slots = WorkspaceLocalIndexing.shared.slots[monitorPoint],
+           !slots.isEmpty
+        {
+            var ordered: [Workspace] = []
+            var seen: Set<Workspace> = []
+            for workspace in slots where workspace.workspaceMonitor.rect.topLeftCorner == monitorPoint {
+                if seen.insert(workspace).inserted {
+                    ordered.append(workspace)
+                }
+            }
+            let additional = Workspace.all
+                .filter { $0.workspaceMonitor.rect.topLeftCorner == monitorPoint && !seen.contains($0) }
+                .sorted()
+            ordered.append(contentsOf: additional)
+            if seen.insert(current).inserted {
+                ordered.append(current)
+            }
+            workspaces = ordered
+        } else {
+            workspaces = Workspace.all.filter { $0.workspaceMonitor.rect.topLeftCorner == monitorPoint }
+                .toSet()
+                .union([current])
+                .sorted()
+        }
+    }
     let index = workspaces.firstIndex(where: { $0 == target.workspace }) ?? 0
     let workspace: Workspace? = if wrapAround {
         workspaces.get(wrappingIndex: isNext ? index + 1 : index - 1)

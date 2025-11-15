@@ -60,7 +60,7 @@ struct FrozenFocus: AeroAny, Equatable, Sendable {
 /// AEROSPACE_WORKSPACE env before accessing the global focus.
 @MainActor var focus: LiveFocus { _focus.live }
 
-@MainActor func setFocus(to newFocus: LiveFocus) -> Bool {
+@MainActor func setFocus(to newFocus: LiveFocus, slotOverride: Int? = nil) -> Bool {
     if _focus == newFocus.frozen { return true }
     let oldFocus = focus
     // Normalize mruWindow when focus away from a workspace
@@ -69,15 +69,15 @@ struct FrozenFocus: AeroAny, Equatable, Sendable {
     }
 
     _focus = newFocus.frozen
-    let status = newFocus.workspace.workspaceMonitor.setActiveWorkspace(newFocus.workspace)
+    let status = newFocus.workspace.workspaceMonitor.setActiveWorkspace(newFocus.workspace, slot: slotOverride)
 
     newFocus.windowOrNil?.markAsMostRecentChild()
     return status
 }
 extension Window {
-    @MainActor func focusWindow() -> Bool {
+    @MainActor func focusWindow(slotOverride: Int? = nil) -> Bool {
         if let focus = toLiveFocusOrNil() {
-            return setFocus(to: focus)
+            return setFocus(to: focus, slotOverride: slotOverride)
         } else {
             // todo We should also exit-native-hidden/unminimize[/exit-native-fullscreen?] window if we want to fix ID-B6E178F2
             //      and retry to focus the window. Otherwise, it's not possible to focus minimized/hidden windows

@@ -7,9 +7,149 @@ import Common
 @MainActor private var screenPointToVisibleWorkspace: [CGPoint: Workspace] = [:]
 @MainActor private var visibleWorkspaceToScreenPoint: [Workspace: CGPoint] = [:]
 
+@MainActor
+final class WorkspaceLocalIndexing {
+    static let shared = WorkspaceLocalIndexing()
+    var slots: [CGPoint: [Workspace]] = [:]
+
+    func index(of workspace: Workspace, on monitorPoint: CGPoint) -> Int? {
+        slots[monitorPoint]?.firstIndex(of: workspace)
+    }
+
+    func workspace(at slot: Int, monitorPoint: CGPoint) -> Workspace? {
+        guard slot > 0, let list = slots[monitorPoint] else { return nil }
+        let index = slot - 1
+        return list.indices.contains(index) ? list[index] : nil
+    }
+
+    func workspace(at slot: Int, monitor: Monitor) -> Workspace? {
+        workspace(at: slot, monitorPoint: monitor.rect.topLeftCorner)
+    }
+
+    func ensureLocalWorkspace(slot: Int, monitor: Monitor) -> Workspace {
+        let monitorPoint = monitor.rect.topLeftCorner
+        let name = localWorkspaceName(for: monitor, slot: slot)
+        let workspace = Workspace.get(byName: name)
+        workspace.assignedMonitorPoint = monitorPoint
+        move(workspace, to: monitorPoint, at: slot)
+        return workspace
+    }
+
+    private func localWorkspaceName(for monitor: Monitor, slot: Int) -> String {
+        "@local-\(monitor.monitorAppKitNsScreenScreensId)-\(slot)"
+    }
+
+    func ensureStub(at monitorPoint: CGPoint, slot: Int) {
+        var list = slots[monitorPoint] ?? []
+        guard list.isEmpty else { return }
+        let stub = newStub(excluding: list, at: monitorPoint, slot: slot)
+        stub.assignedMonitorPoint = monitorPoint
+        list.append(stub)
+        slots[monitorPoint] = list
+    }
+
+    func move(_ workspace: Workspace, to monitorPoint: CGPoint, at slot: Int?) {
+        let previousLocation = remove(workspace)
+        workspace.assignedMonitorPoint = monitorPoint
+        var list = slots[monitorPoint] ?? []
+        if let slot, slot > 0 {
+            let desiredIndex = slot - 1
+            while list.count < desiredIndex {
+                let stub = newStub(excluding: list, at: monitorPoint, slot: list.count + 1)
+                stub.assignedMonitorPoint = monitorPoint
+                list.append(stub)
+            }
+            let insertionIndex = min(desiredIndex, list.count)
+            list.insert(workspace, at: insertionIndex)
+        } else if let previousLocation, previousLocation.0 == monitorPoint {
+            let insertionIndex = min(previousLocation.1, list.count)
+            list.insert(workspace, at: insertionIndex)
+        } else {
+            list.append(workspace)
+        }
+        slots[monitorPoint] = deduplicated(list)
+    }
+
+    func handleMonitorTopologyChange(newMonitors: [Monitor]) {
+        let oldSlots = slots
+        slots = [:]
+        var oldPoints = Array(oldSlots.keys)
+        var mapping: [CGPoint: CGPoint] = [:]
+
+        for monitor in newMonitors {
+            let newPoint = monitor.rect.topLeftCorner
+            if let closest = oldPoints.minBy({ ($0 - newPoint).vectorLength }) {
+                mapping[newPoint] = closest
+                if let idx = oldPoints.firstIndex(of: closest) {
+                    oldPoints.remove(at: idx)
+                }
+            }
+        }
+
+        for monitor in newMonitors {
+            let newPoint = monitor.rect.topLeftCorner
+            if let oldPoint = mapping[newPoint], let list = oldSlots[oldPoint] {
+                let reassigned = list.map { workspace in
+                    workspace.assignedMonitorPoint = newPoint
+                    return workspace
+                }
+                slots[newPoint] = reassigned
+            } else {
+                slots[newPoint] = []
+                ensureStub(at: newPoint, slot: 1)
+            }
+        }
+    }
+
+    @discardableResult
+    private func remove(_ workspace: Workspace) -> (CGPoint, Int)? {
+        for (point, list) in slots {
+            if let index = list.firstIndex(of: workspace) {
+                var updated = list
+                updated.remove(at: index)
+                if updated.isEmpty {
+                    slots.removeValue(forKey: point)
+                } else {
+                    slots[point] = updated
+                }
+                return (point, index)
+            }
+        }
+        return nil
+    }
+
+    private func newStub(excluding existing: [Workspace], at monitorPoint: CGPoint, slot: Int) -> Workspace {
+        if config.workspaceIndexingMode == .perMonitor {
+            return ensureLocalWorkspace(slot: slot, monitor: monitorPoint.monitorApproximation)
+        }
+        if let candidate = Workspace.all
+            .first(where: { !$0.isVisible && $0.workspaceMonitor.rect.topLeftCorner == monitorPoint && !existing.contains($0) })
+        {
+            return candidate
+        }
+        return getStubWorkspace(forPoint: monitorPoint)
+    }
+
+    private func deduplicated(_ workspaces: [Workspace]) -> [Workspace] {
+        var seen: Set<Workspace> = []
+        return workspaces.filter { workspace in
+            if seen.contains(workspace) {
+                return false
+            } else {
+                seen.insert(workspace)
+                return true
+            }
+        }
+    }
+}
+
 // The returned workspace must be invisible and it must belong to the requested monitor
-@MainActor func getStubWorkspace(for monitor: Monitor) -> Workspace {
-    getStubWorkspace(forPoint: monitor.rect.topLeftCorner)
+@MainActor func getStubWorkspace(for monitor: Monitor, preferredSlot: Int? = nil) -> Workspace {
+    if config.workspaceIndexingMode == .perMonitor {
+        let slot = preferredSlot ?? 1
+        return WorkspaceLocalIndexing.shared.ensureLocalWorkspace(slot: slot, monitor: monitor)
+    }
+    return getStubWorkspace(forPoint: monitor.rect.topLeftCorner)
 }
 
 @MainActor
@@ -88,11 +228,14 @@ final class Workspace: TreeNode, NonLeafTreeNodeObject, Hashable, Comparable {
         for name in preservedNames {
             _ = get(byName: name) // Make sure that all preserved workspaces are "cached"
         }
+        // Keep workspaces referenced by per-monitor slots alive so they aren't recreated
+        let slotWorkspaces = WorkspaceLocalIndexing.shared.slots.values.flatMap { $0 }
         workspaceNameToWorkspace = workspaceNameToWorkspace.filter { (_, workspace: Workspace) in
             preservedNames.contains(workspace.name) ||
                 !workspace.isEffectivelyEmpty ||
                 workspace.isVisible ||
-                workspace.name == focus.workspace.name
+                workspace.name == focus.workspace.name ||
+                slotWorkspaces.contains { $0 === workspace }
         }
     }
 
@@ -130,8 +273,12 @@ extension Monitor {
     }
 
     @MainActor
-    func setActiveWorkspace(_ workspace: Workspace) -> Bool {
-        rect.topLeftCorner.setActiveWorkspace(workspace)
+    func setActiveWorkspace(_ workspace: Workspace, slot: Int? = nil) -> Bool {
+        let status = rect.topLeftCorner.setActiveWorkspace(workspace)
+        if status {
+            WorkspaceLocalIndexing.shared.move(workspace, to: rect.topLeftCorner, at: slot)
+        }
+        return status
     }
 }
 
@@ -188,10 +335,11 @@ private func rearrangeWorkspacesOnMonitors() {
         {
             continue
         }
-        let stubWorkspace = getStubWorkspace(forPoint: newScreen)
+        let stubWorkspace = getStubWorkspace(for: newScreen.monitorApproximation)
         check(newScreen.setActiveWorkspace(stubWorkspace),
               "getStubWorkspace generated incompatible stub workspace (\(stubWorkspace)) for the monitor (\(newScreen)")
     }
+    WorkspaceLocalIndexing.shared.handleMonitorTopologyChange(newMonitors: monitors)
 }
 
 @MainActor

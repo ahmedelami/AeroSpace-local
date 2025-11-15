@@ -20,10 +20,13 @@ public final class TrayMenuModel: ObservableObject {
     let focus = focus
     TrayMenuModel.shared.trayText = (activeMode?.takeIf { $0 != mainModeId }?.first.map { "[\($0.uppercased())] " } ?? "") +
         sortedMonitors
-        .map {
-            let hasFullscreenWindows = $0.activeWorkspace.allLeafWindowsRecursive.contains { $0.isFullscreen }
-            let activeWorkspaceName = hasFullscreenWindows ? "(\($0.activeWorkspace.name))" : $0.activeWorkspace.name
-            return ($0.activeWorkspace == focus.workspace && sortedMonitors.count > 1 ? "*" : "") + activeWorkspaceName
+        .map { monitor in
+            let hasFullscreenWindows = monitor.activeWorkspace.allLeafWindowsRecursive.contains { $0.isFullscreen }
+            var activeWorkspaceName = displayName(for: monitor.activeWorkspace, monitor: monitor)
+            if hasFullscreenWindows {
+                activeWorkspaceName = "(\(activeWorkspaceName))"
+            }
+            return (monitor.activeWorkspace == focus.workspace && sortedMonitors.count > 1 ? "*" : "") + activeWorkspaceName
         }
         .joined(separator: " │ ")
     TrayMenuModel.shared.workspaces = Workspace.all.map {
@@ -36,7 +39,7 @@ public final class TrayMenuModel: ObservableObject {
         }
         let hasFullscreenWindows = $0.allLeafWindowsRecursive.contains { $0.isFullscreen }
         return WorkspaceViewModel(
-            name: $0.name,
+            name: displayName(for: $0, monitor: nil),
             suffix: suffix,
             isFocused: focus.workspace == $0,
             isEffectivelyEmpty: $0.isEffectivelyEmpty,
@@ -48,7 +51,7 @@ public final class TrayMenuModel: ObservableObject {
         let hasFullscreenWindows = $0.activeWorkspace.allLeafWindowsRecursive.contains { $0.isFullscreen }
         return TrayItem(
             type: .workspace,
-            name: $0.activeWorkspace.name,
+            name: displayName(for: $0.activeWorkspace, monitor: $0),
             isActive: $0.activeWorkspace == focus.workspace,
             hasFullscreenWindows: hasFullscreenWindows,
         )
@@ -69,6 +72,23 @@ struct WorkspaceViewModel: Hashable {
     let isEffectivelyEmpty: Bool
     let isVisible: Bool
     let hasFullscreenWindows: Bool
+}
+
+@MainActor
+private func displayName(for workspace: Workspace, monitor: Monitor?) -> String {
+    if config.workspaceIndexingMode == .perMonitor {
+        if let monitor {
+            if let slotIndex = WorkspaceLocalIndexing.shared.index(of: workspace, on: monitor.rect.topLeftCorner) {
+                return String(slotIndex + 1)
+            }
+        } else {
+            let point = workspace.workspaceMonitor.rect.topLeftCorner
+            if let slotIndex = WorkspaceLocalIndexing.shared.index(of: workspace, on: point) {
+                return String(slotIndex + 1)
+            }
+        }
+    }
+    return workspace.name
 }
 
 enum TrayItemType: String, Hashable {
